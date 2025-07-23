@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Borrow Book{% endblock %}
+
+{% block body %}
+    <h1>Borrow Book</h1>
+
+    {{ form_start(form) }}
+    {{ form_row(form.borrowedAt, {'label': 'Borrowed on'}) }}
+    {{ form_row(form.dueDate, {'label': 'Due date'}) }}
+
+    <button class="btn btn-primary">Confirm Borrow</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('app_book_index') }}">Back to list</a>
+{% endblock %}

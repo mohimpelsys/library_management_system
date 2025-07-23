@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Borrowed Books{% endblock %}
+
+{% block body %}
+        <h1>📚 My Borrowed Books</h1>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+            <div class="container-fluid justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_book_index') }}">Home</a>
+                    </li>
+                    {% if app.user %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
+
+
+    {% if borrows is empty %}
+        <p>You haven't borrowed any books yet.</p>
+    {% else %}
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Borrowed On</th>
+                <th>Due Date</th>
+                <th>Fine</th>
+            </tr>
+            </thead>
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <tbody>
+            {% for borrow in borrows %}
+                {% set today = date() %}
+                {% set dueDate = borrow.dueDate %}
+                {% set daysLate = (today > dueDate) ? (today.diff(dueDate).days) : 0 %}
+                {% set finePerDay = 10 %}
+                {% set fine = daysLate * finePerDay %}
+                <tr>
+                    <td>{{ borrow.book.title }}</td>
+                    <td>{{ borrow.book.author }}</td>
+                    <td>{{ borrow.borrowedAt|date('Y-m-d') }}</td>
+                    <td>{{ borrow.dueDate|date('Y-m-d') }}</td>
+                    <td>
+                        {% if daysLate > 0 %}
+                            ₹{{ fine }} ({{ daysLate }} days late)
+                        {% else %}
+                            No fine
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="post" action="{{ path('return_book', {'id': borrow.id}) }}" onsubmit="return confirm('Are you sure you want to return this book?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('return' ~ borrow.id) }}">
+                            <button type="submit" class="btn btn-danger">Return</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
