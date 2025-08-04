@@ -2,22 +2,31 @@
 
 namespace App\Controller;
 
+use App\Dto\BookFormDto;
 use App\Entity\Book;
 use App\Form\BookType;
+use App\Mapper\BookFormMapper;
+use App\Mapper\BookMapper;
 use App\Repository\BookRepository;
+//use App\Dto\BookDto;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
+//use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
-
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/book')]
 final class BookController extends AbstractController
 {
+    private BookFormMapper $bookFormMapper;
+    public function __construct(BookFormMapper $bookFormMapper)
+    {
+        $this->bookFormMapper = $bookFormMapper;
+    }
     #[Route(name: 'app_book_index', methods: ['GET'])]
     public function index(Request $request, BookRepository $bookRepository): Response
     {
@@ -31,18 +40,29 @@ final class BookController extends AbstractController
         }
 
         $searchTerm = $request->query->get('q', '');
+        $sort = $request->query->get('sort', ''); // Get the sorting field
+
+        $qb = $bookRepository->createQueryBuilder('b')
+            ->where('b.isDeleted = false');
+
         if ($searchTerm) {
-            $books = $bookRepository->createQueryBuilder('b')
-                ->where('b.title LIKE :term OR b.author LIKE :term OR b.isbn LIKE :term')
-                ->setParameter('term', '%' . $searchTerm . '%')
-                ->getQuery()
-                ->getResult();
-        } else {
-            $books = $bookRepository->findAll();
+            $qb->andWhere('b.title LIKE :term OR b.author LIKE :term OR b.isbn LIKE :term')
+                ->setParameter('term', '%' . $searchTerm . '%');
         }
 
+        // Apply sorting if requested
+        if ($sort === 'title') {
+            $qb->orderBy('b.title', 'ASC');
+        } elseif ($sort === 'isbn') {
+            $qb->orderBy('b.isbn', 'ASC');
+        }
+
+        $books = $qb->getQuery()->getResult();
+
+        $bookDtos = BookMapper::toDtoList($books);
+
         return $this->render('book/index.html.twig', [
-            'books' => $books,
+            'books' => $bookDtos,
             'borrowedBookIds' => $borrowedBookIds,
             'searchTerm' => $searchTerm,
         ]);
@@ -51,80 +71,71 @@ final class BookController extends AbstractController
 
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/new', name: 'app_book_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
-    {
-        $book = new Book();
-        $form = $this->createForm(BookType::class, $book);
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        SluggerInterface $slugger,
+        ValidatorInterface $validator
+
+    ): Response {
+        $dto = new BookFormDto();
+        $form = $this->createForm(BookType::class, $dto);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('image')->getData();
+        if ($form->isSubmitted()) {
+            $errors = $validator->validate($dto);
 
-            if ($imageFile) {
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+            if (count($errors) === 0 && $form->isValid()) {
+                $book = BookFormMapper::toEntity($dto);
 
-                try {
-                    $imageFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads',
-                        $newFilename
-                    );
-                } catch (FileException $e) {
-                    // Optionally log the error
-                }
+                $this->bookFormMapper->updateEntityFromDto($dto, $book, $slugger);
 
-                $book->setImage($newFilename);
+                $entityManager->persist($book);
+                $entityManager->flush();
+
+                $this->addFlash('success', '✅ Book added successfully!');
+                return $this->redirectToRoute('app_book_index');
             }
-
-            $entityManager->persist($book);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+            $this->addFlash('danger', '❌ Book creation failed. Please fix the errors and try again.');
         }
-
         return $this->render('book/new.html.twig', [
-            'book' => $book,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
+
 
     #[Route('/{id}', name: 'app_book_show', methods: ['GET'])]
     public function show(Book $book): Response
     {
+        $bookDto = BookMapper::toDto($book);
         return $this->render('book/show.html.twig', [
-            'book' => $book,
+            'book' => $bookDto,
         ]);
     }
 
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/{id}/edit', name: 'app_book_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request,Book $book, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
-    {
-        $form = $this->createForm(BookType::class, $book);
+    public function edit(
+        Request $request,
+        Book $book,
+        EntityManagerInterface $entityManager,
+        SluggerInterface $slugger,
+        BookFormMapper $bookFormMapper
+    ): Response {
+        // STEP 1: Convert Book entity to DTO
+        $bookFormDto = $bookFormMapper->entityToDto($book);
+
+        // STEP 2: Create and handle the form
+        $form = $this->createForm(BookType::class, $bookFormDto, [
+            'is_edit' => true, // disables ISBN field
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('image')->getData();
+            // STEP 3: Update the existing book with new data
+            $bookFormMapper->updateEntityFromDto($bookFormDto, $book, $slugger);
 
-            if ($imageFile) {
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
-
-                try {
-                    $imageFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads',
-                        $newFilename
-                    );
-                } catch (FileException $e) {
-                    // Optionally log the error
-                }
-
-                $book->setImage($newFilename);
-            }
-
-            $entityManager->persist($book);
+            // STEP 4: Save changes
             $entityManager->flush();
 
             return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
@@ -138,13 +149,12 @@ final class BookController extends AbstractController
 
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/{id}', name: 'app_book_delete', methods: ['POST'])]
-    public function delete(Request $request, Book $book, EntityManagerInterface $entityManager): Response
+    public function delete(Book $book, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$book->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($book);
-            $entityManager->flush();
-        }
+        $book->setIsDeleted(true);
+        $em->flush();
 
-        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+        $this->addFlash('success', 'Book deleted successfully (soft delete).');
+        return $this->redirectToRoute('app_book_index');
     }
 }

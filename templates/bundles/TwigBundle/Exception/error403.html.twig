@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Access Denied{% endblock %}
+
+{% block body %}
+    <div class="container text-center mt-5">
+        <h1 class="text-danger">403 - Access Denied</h1>
+        <p class="mb-4">You do not have permission to access this page.</p>
+
+        <a href="{{ path('app_login') }}" class="btn btn-outline-primary">Go to Login</a>
+        <a href="{{ path('app_book_index') }}" class="btn btn-link mt-3">Go to Home</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Access Denied{% endblock %}
+
+{% block body %}
+    <div style="text-align: center; margin-top: 100px;">
+        <h1 style="color: #6d4c41;">🚫 Access Denied</h1>
+        <p style="font-size: 18px; color: #444;">You don’t have permission to view this page.</p>
+
+        <div style="margin-top: 30px;">
+            <a href="{{ path('app_login') }}"
+               class="btn btn-primary"
+               style="background-color: #8d6e63; border-color: #8d6e63; padding: 10px 20px; border-radius: 5px; text-decoration: none; color: white; margin-right: 10px;">
+                🔐 Go to Login
+            </a>
+
+            <a href="{{ path('app_book_index') }}"
+               class="btn btn-secondary"
+               style="background-color: #8d6e63; border-color: #a1887f; padding: 10px 20px; border-radius: 5px; text-decoration: none; color: white;">
+                🏠 Go to Home
+            </a>
+        </div>
+    </div>
+{% endblock %}

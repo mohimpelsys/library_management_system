@@ -40,4 +40,26 @@ class BookRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    // src/Repository/BookRepository.php
+
+    public function findAll(): array
+    {
+        return $this->createQueryBuilder('b')
+            ->where('b.isDeleted = false')
+            ->getQuery()
+            ->getResult();
+    }
+    public function searchByTitleAuthorIsbn(string $keyword): array
+    {
+        return $this->createQueryBuilder('b')
+            ->where('b.isDeleted = false')
+            ->where('LOWER(b.title) LIKE :kw')
+            ->orWhere('LOWER(b.author) LIKE :kw')
+            ->orWhere('LOWER(b.isbn) LIKE :kw')
+            ->setParameter('kw', '%' . strtolower($keyword) . '%')
+            ->getQuery()
+            ->getResult();
+    }
+
+
 }

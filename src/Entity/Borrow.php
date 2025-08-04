@@ -27,6 +27,20 @@ class Borrow
     #[ORM\Column]
     private ?\DateTime $dueDate = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTime $returnedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $fine = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $isReturned = false;
+
+    public function __construct()
+    {
+        $this->borrowedAt = new \DateTime();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -79,4 +93,49 @@ class Borrow
 
         return $this;
     }
+
+    public function getReturnedAt(): ?\DateTime
+    {
+        return $this->returnedAt;
+    }
+
+    public function setReturnedAt(?\DateTime $returnedAt): static
+    {
+        $this->returnedAt = $returnedAt;
+
+        return $this;
+    }
+
+    public function getFine(): ?float
+    {
+        $today = new \DateTime();
+
+        // Case 1: Book not yet returned and overdue
+        if ($this->dueDate && !$this->isReturned && $today > $this->dueDate) {
+            $interval = $this->dueDate->diff($today);
+            return $interval->days * 10.0; // ₹10/day fine
+        }
+
+        // Case 2: Book returned late
+        if ($this->dueDate && $this->returnedAt && $this->returnedAt > $this->dueDate) {
+            $interval = $this->dueDate->diff($this->returnedAt);
+            return $interval->days * 10.0; // ₹10/day fine
+        }
+
+        // Case 3: Not late
+        return 0.0;
+    }
+
+
+    public function isReturned(): bool
+    {
+        return $this->isReturned;
+    }
+
+    public function setIsReturned(bool $isReturned): self
+    {
+        $this->isReturned = $isReturned;
+        return $this;
+    }
+
 }

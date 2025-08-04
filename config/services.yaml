@@ -16,5 +16,16 @@ services:
     App\:
         resource: '../src/'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    App\Mapper\BookFormMapper:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\EventListener\CacheControlListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.response }
+
+    App\EventListener\AccessDeniedListener:
+        arguments:
+            $twig: '@twig'
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, priority: 10 }

@@ -2,18 +2,109 @@
 
 {% block title %}Register{% endblock %}
 
+{% block stylesheets %}
+    <style>
+        body {
+            background-color: #f4e2d8;
+            color: #4e342e;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fffaf0;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #5d4037;
+        }
+
+        .form-control {
+            background-color: #fdf6ec;
+            border-color: #d7ccc8;
+        }
+
+        .btn-primary {
+            background-color: #8d6e63;
+            border-color: #6d4c41;
+        }
+
+        .btn-primary:hover {
+            background-color: #a1887f;
+            border-color: #8d6e63;
+        }
+
+        .btn-secondary {
+            background-color: #bcaaa4;
+            border-color: #a1887f;
+            color: #4e342e;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d7ccc8;
+        }
+
+        .text-danger {
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #4e342e;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-    <h1>Register</h1>
+    <div class="form-container">
+        <h1>Create an Account</h1>
 
-    {{ form_errors(registrationForm) }}
+        {{ form_start(registrationForm) }}
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+        {% for error in registrationForm.vars.errors %}
+            <div class="alert alert-danger">{{ error.message }}</div>
+        {% endfor %}
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+        <div class="mb-3">
+            {{ form_label(registrationForm.email) }}
+            {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
+            {% for error in registrationForm.email.vars.errors %}
+                <div class="text-danger">{{ error.message }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(registrationForm.plainPassword, 'Password') }}
+            {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
+            {% for error in registrationForm.plainPassword.vars.errors %}
+                <div class="text-danger">{{ error.message }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3 form-check">
+            {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+            {{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'form-check-label'}}) }}
+            {% for error in registrationForm.agreeTerms.vars.errors %}
+                <div class="text-danger">{{ error.message }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <button type="submit" class="btn btn-primary w-100">Register</button>
+            </div>
+            <div class="col-6">
+                <a href="{{ path('app_login') }}" class="btn btn-secondary w-100">Back to Login</a>
+            </div>
+        </div>
+
+        {{ form_end(registrationForm) }}
+    </div>
 {% endblock %}

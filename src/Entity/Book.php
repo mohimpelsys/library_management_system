@@ -33,6 +33,12 @@ class Book
     #[ORM\OneToMany(targetEntity: Borrow::class, mappedBy: 'book')]
     private Collection $borrows;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $isDeleted = false;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->borrows = new ArrayCollection();
@@ -120,4 +126,28 @@ class Book
 
         return $this;
     }
+
+    public function isDeleted(): bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
 }
