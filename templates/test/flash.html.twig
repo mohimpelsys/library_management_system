@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Flash Message Debug{% endblock %}
+
+{% block body %}
+    <div style="max-width: 800px; margin: 2em auto; padding: 2em; background: white; border-radius: 8px;">
+        <h1>🔍 Flash Message Debug</h1>
+
+        {# ✅ Session Information #}
+        {% if sessionId is defined %}
+            <div style="background: #f8f9fa; padding: 1em; border-radius: 4px; margin: 1em 0; font-family: monospace;">
+                <h3>Session Info:</h3>
+                <p><strong>Session ID:</strong> {{ sessionId }}</p>
+                <p><strong>Session Started:</strong> {{ sessionStarted ? 'Yes' : 'No' }}</p>
+
+                {% if flashPeek is defined %}
+                    <h4>Flash Messages (Peek from Controller):</h4>
+                    <pre>{{ dump(flashPeek) }}</pre>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {# ✅ Flash messages from Twig app.flashes #}
+        <div style="background: #e3f2fd; padding: 1em; border-radius: 4px; margin: 1em 0;">
+            <h3>🔍 Flash Messages from app.flashes</h3>
+
+            {% if app.flashes|length > 0 %}
+                {% for type, messages in app.flashes %}
+                    <div class="alert alert-{{ type }} text-center fw-bold" style="margin: 0.5em 0;">
+                        {% for message in messages %}
+                            <div>{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: red;">❌ No flash messages available via app.flashes</p>
+            {% endif %}
+        </div>
+
+        {# ✅ Redirect Test Notice #}
+        {% if redirectTest is defined %}
+            <div style="background: #d1ecf1; padding: 1em; border-radius: 4px; margin: 1em 0;">
+                <h3>📍 Redirect Test Result</h3>
+                <p>This page was reached via redirect. Flash messages should appear above if working correctly.</p>
+            </div>
+        {% endif %}
+
+        {# ✅ Actions #}
+        <div style="background: #fff3cd; padding: 1em; border-radius: 4px; margin: 1em 0;">
+            <h3>🧪 Test Actions:</h3>
+            <p><a href="{{ path('test_flash') }}" class="btn btn-primary">🔄 Reload Flash Test</a></p>
+            <p><a href="{{ path('test_flash_redirect') }}" class="btn btn-success">🔄 Test Flash + Redirect</a></p>
+            <p><a href="{{ path('app_register') }}" class="btn btn-secondary">📝 Back to Register</a></p>
+        </div>
+    </div>
+{% endblock %}

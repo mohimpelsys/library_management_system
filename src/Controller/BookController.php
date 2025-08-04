@@ -35,9 +35,12 @@ final class BookController extends AbstractController
 
         if ($user) {
             foreach ($user->getBorrows() as $borrow) {
-                $borrowedBookIds[] = $borrow->getBook()->getId();
+                if ($borrow->getReturnedAt() === null) {
+                    $borrowedBookIds[] = $borrow->getBook()->getId();
+                }
             }
         }
+
 
         $searchTerm = $request->query->get('q', '');
         $sort = $request->query->get('sort', ''); // Get the sorting field
@@ -58,7 +61,6 @@ final class BookController extends AbstractController
         }
 
         $books = $qb->getQuery()->getResult();
-
         $bookDtos = BookMapper::toDtoList($books);
 
         return $this->render('book/index.html.twig', [

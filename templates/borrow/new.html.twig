@@ -3,82 +3,6 @@
 {% block title %}Borrow Book{% endblock %}
 
 {% block stylesheets %}
-    <style>
-        body {
-            background-color: #2c2c2c;
-            color: #e0d7c6;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        h1 {
-            color: #d9b382;
-            border-bottom: 2px solid #a1887f;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background-color: #3a3a3a;
-            border: 1px solid #5d4037;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .form-label {
-            color: #f5f5f5;
-        }
-
-        .form-control {
-            background-color: #4e342e;
-            color: #ffffff;
-            border: 1px solid #a1887f;
-        }
-
-        .form-control::placeholder {
-            color: #ccc;
-        }
-
-        .btn-primary {
-            background-color: #6d4c41;
-            border-color: #5d4037;
-        }
-
-        .btn-primary:hover {
-            background-color: #8d6e63;
-        }
-
-        .btn-secondary {
-            background-color: #5e4b42;
-            border-color: #4e342e;
-        }
-
-        .btn-secondary:hover {
-            background-color: #7b5e57;
-        }
-
-        .text-danger {
-            color: #ffccbc;
-            margin-top: 4px;
-            font-size: 0.875rem;
-        }
-
-        .alert-danger {
-            background-color: #b71c1c;
-            color: #fff3e0;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 12px;
-            margin-bottom: 1rem;
-        }
-
-        .readonly-field {
-            padding: 10px 15px;
-            background-color: #4e342e;
-            color: #ffffff;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-    </style>
 {% endblock %}
 
 {% block body %}
@@ -91,9 +15,7 @@
 
                 {# Global errors (if any) #}
                 {% for error in form.vars.errors %}
-                    <div class="alert alert-danger">
-                        {{ error.message }}
-                    </div>
+                    <div class="alert alert-danger">{{ error.message }}</div>
                 {% endfor %}
 
                 {# Show auto-set borrowedAt (read-only) #}
@@ -104,22 +26,19 @@
                     </div>
                 </div>
 
-                {# Due Date Field #}
                 <div class="mb-3">
-                    {{ form_label(form.dueDate, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_label(form.dueDate) }}
                     {{ form_widget(form.dueDate, {'attr': {'class': 'form-control'}}) }}
-                    {% for error in form.dueDate.vars.errors %}
-                        <div class="text-danger">
-                            {% if error.message == 'This value should not be blank.' %}
-                                Please choose a due date.
-                            {% elseif error.message matches '/after/' %}
-                                Due date must be after borrow date.
-                            {% else %}
+
+                    {% if form.dueDate.vars.errors|length > 0 %}
+                        {% for error in form.dueDate.vars.errors %}
+                            <div class="text-danger">
                                 {{ error.message }}
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
+
 
                 <button type="submit" class="btn btn-primary">📚 Borrow</button>
                 <a href="{{ path('app_book_index') }}" class="btn btn-secondary ms-2">🔙 Back to list</a>

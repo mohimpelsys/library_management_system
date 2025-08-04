@@ -1,35 +1,35 @@
 {{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' } }) }}
 
-<div class="container py-4 px-5" style="max-width: 700px; background-color: #f9f1ea; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+<div class="container mt-4 py-4 px-5" style="max-width: 700px; background-color: #f9f1ea; border-radius: 16px; box-shadow: 0 0 12px rgba(0,0,0,0.08);">
 
     <div class="mb-4 text-center">
-        <h2 style="color: #6d3d2c;">📘 Book Details</h2>
+        <h2 class="fw-bold" style="color: #6d3d2c;">📘 Book Details</h2>
     </div>
 
     <!-- Title -->
     <div class="mb-3">
-        {{ form_label(form.title, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_label(form.title, null, {'label_attr': {'class': 'form-label fw-bold text-dark'}}) }}
         {{ form_widget(form.title, { 'attr': {'class': 'form-control'} }) }}
         {{ form_errors(form.title) }}
     </div>
 
     <!-- Author -->
     <div class="mb-3">
-        {{ form_label(form.author, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_label(form.author, null, {'label_attr': {'class': 'form-label fw-bold text-dark'}}) }}
         {{ form_widget(form.author, { 'attr': {'class': 'form-control'} }) }}
         {{ form_errors(form.author) }}
     </div>
 
     <!-- ISBN -->
     <div class="mb-3">
-        {{ form_label(form.isbn, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_label(form.isbn, null, {'label_attr': {'class': 'form-label fw-bold text-dark'}}) }}
         {{ form_widget(form.isbn, { 'attr': {'class': 'form-control'} }) }}
         {{ form_errors(form.isbn) }}
     </div>
 
     <!-- Description -->
     <div class="mb-3">
-        {{ form_label(form.description, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_label(form.description, null, {'label_attr': {'class': 'form-label fw-bold text-dark'}}) }}
         {{ form_widget(form.description, {
             'attr': {
                 'class': 'form-control',
@@ -42,14 +42,14 @@
 
     <!-- Image Upload -->
     <div class="mb-4">
-        {{ form_label(form.image, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_label(form.image, null, {'label_attr': {'class': 'form-label fw-bold text-dark'}}) }}
         {{ form_widget(form.image, { 'attr': {'class': 'form-control'} }) }}
         {{ form_errors(form.image) }}
     </div>
 
     <!-- Submit -->
-    <div class="text-center">
-        <button type="submit" class="btn btn-outline-primary px-5 py-2" style="border-radius: 20px;">
+    <div class="text-center mt-4">
+        <button type="submit" class="btn btn-outline-primary px-5 py-2 fw-bold" style="border-radius: 20px;">
             ✅ Save Book
         </button>
     </div>

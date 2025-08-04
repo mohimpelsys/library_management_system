@@ -1,7 +1,6 @@
 <?php
 namespace App\Dto;
 
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class BookDto
@@ -40,7 +39,7 @@ class BookDto
         maxSizeMessage: 'Image size must be under 10MB.',
         mimeTypesMessage: 'Please upload a valid image (JPEG, PNG, or WebP).'
     )]
-    public ?UploadedFile $image = null;
+    public ?string $image = null;
 
     #[Assert\Length(
         max: 500,

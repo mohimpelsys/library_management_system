@@ -2,150 +2,53 @@
 
 {% block title %}Log in!{% endblock %}
 
-{% block stylesheets %}
-    <style>
-        body {
-            background-color: #f4e2d8;
-            color: #4e342e;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .main-heading {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-top: 40px;
-            margin-bottom: 20px;
-            color: #6d4c41;
-        }
-
-        form {
-            max-width: 400px;
-            margin: 0 auto 60px auto;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
-            border: 1px solid #c7a17a;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #4e342e;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            border: 1px solid #a1887f;
-            background-color: #fbe9e7;
-            color: #3e2723;
-        }
-
-        .form-control::placeholder {
-            color: #a1887f;
-        }
-
-        .btn-primary {
-            background-color: #8d6e63;
-            border-color: #6d4c41;
-            color: #fff;
-            width: 100%;
-        }
-
-        .btn-primary:hover {
-            background-color: #a1887f;
-        }
-
-        .btn-secondary {
-            background-color: #bcaaa4;
-            border-color: #a1887f;
-            color: #4e342e;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .btn-secondary:hover {
-            background-color: #d7ccc8;
-        }
-
-        .alert-danger {
-            background-color: #d32f2f;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        .alert-success {
-            background-color: #d7ffd9;
-            color: #256029;
-            border: 1px solid #b2fab4;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .mb-3 a {
-            color: #4e342e;
-        }
-
-        .mb-3 a:hover {
-            color: #000;
-        }
-    </style>
-{% endblock %}
-
 {% block body %}
-    <div class="main-heading">📚 Library Management System</div>
+    <div class="container mt-5" style="max-width: 500px;">
+        <div class="text-center mb-4">
+            <h1 class="fw-bold" style="color: #4e342e;">📚 Library Management System</h1>
+            <h2 class="h5 mt-3 text-muted">🔐 Please sign in</h2>
+        </div>
 
-    <form method="post">
+        <form method="post" class="p-4 border rounded shadow-sm bg-white">
 
-        {% for message in app.flashes('success') %}
-            <div class="alert-success">
-                {{ message }}
-            </div>
-        {% endfor %}
+            {# ✅ Flash Messages #}
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success text-center">
+                    {{ message }}
+                </div>
+            {% endfor %}
 
-        {% if error %}
-            <div class="alert alert-danger">
-                {{ error.messageKey|trans(error.messageData, 'security') }}
-            </div>
-        {% endif %}
+            {% if error %}
+                <div class="alert alert-danger text-center">
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                </div>
+            {% endif %}
 
-        {% if app.user %}
+            {% if app.user %}
+                <div class="mb-3 text-center">
+                    You are logged in as <strong>{{ app.user.userIdentifier }}</strong>,
+                    <a href="{{ path('app_logout') }}">Logout</a>
+                </div>
+            {% endif %}
+
             <div class="mb-3">
-                You are logged in as {{ app.user.userIdentifier }},
-                <a href="{{ path('app_logout') }}">Logout</a>
+                <label for="inputEmail" class="form-label fw-bold">Email</label>
+                <input type="email" value="{{ last_username }}" name="email" id="inputEmail"
+                       class="form-control" autocomplete="email" required autofocus>
             </div>
-        {% endif %}
 
-        <h1 class="h3 mb-3 text-center">🔐 Please sign in</h1>
+            <div class="mb-3">
+                <label for="inputPassword" class="form-label fw-bold">Password</label>
+                <input type="password" name="password" id="inputPassword"
+                       class="form-control" autocomplete="current-password" required>
+            </div>
 
-        <label for="inputEmail">Email</label>
-        <input type="email" value="{{ last_username }}" name="email" id="inputEmail"
-               class="form-control" autocomplete="email" required autofocus>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-        <label for="inputPassword">Password</label>
-        <input type="password" name="password" id="inputPassword"
-               class="form-control" autocomplete="current-password" required>
-
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-        <button class="btn btn-lg btn-primary" type="submit">
-            🔓 Sign in
-        </button>
-
-        <a href="{{ path('app_register') }}">
-            <button type="button" class="btn btn-secondary">
-                📝 Register new account
-            </button>
-        </a>
-    </form>
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary" type="submit">🔓 Sign in</button>
+                <a href="{{ path('app_register') }}" class="btn btn-secondary">📝 Register new account</a>
+            </div>
+        </form>
+    </div>
 {% endblock %}
