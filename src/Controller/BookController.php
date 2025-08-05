@@ -9,8 +9,10 @@ use App\Mapper\BookFormMapper;
 use App\Mapper\BookMapper;
 use App\Repository\BookRepository;
 //use App\Dto\BookDto;
+use App\Repository\BorrowRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -28,7 +30,7 @@ final class BookController extends AbstractController
         $this->bookFormMapper = $bookFormMapper;
     }
     #[Route(name: 'app_book_index', methods: ['GET'])]
-    public function index(Request $request, BookRepository $bookRepository): Response
+    public function index(Request $request, BookRepository $bookRepository, BorrowRepository $borrowRepository): Response
     {
         $user = $this->getUser();
         $borrowedBookIds = [];
@@ -63,10 +65,17 @@ final class BookController extends AbstractController
         $books = $qb->getQuery()->getResult();
         $bookDtos = BookMapper::toDtoList($books);
 
+        $activeBorrows = $borrowRepository->findBy(['returnedAt' => null]);
+        $borrowedBookIds = [];
+        foreach ($activeBorrows as $borrow) {
+            $borrowedBookIds[] = $borrow->getBook()->getId();
+        }
+
         return $this->render('book/index.html.twig', [
             'books' => $bookDtos,
             'borrowedBookIds' => $borrowedBookIds,
             'searchTerm' => $searchTerm,
+            'isAdmin' => $this->isGranted('ROLE_ADMIN'),
         ]);
     }
 
@@ -86,6 +95,7 @@ final class BookController extends AbstractController
 
         if ($form->isSubmitted()) {
             $errors = $validator->validate($dto);
+//            dd($errors);
 
             if (count($errors) === 0 && $form->isValid()) {
                 $book = BookFormMapper::toEntity($dto);
@@ -98,10 +108,12 @@ final class BookController extends AbstractController
                 $this->addFlash('success', '✅ Book added successfully!');
                 return $this->redirectToRoute('app_book_index');
             }
+
             $this->addFlash('danger', '❌ Book creation failed. Please fix the errors and try again.');
         }
+
         return $this->render('book/new.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -109,7 +121,9 @@ final class BookController extends AbstractController
     #[Route('/{id}', name: 'app_book_show', methods: ['GET'])]
     public function show(Book $book): Response
     {
+
         $bookDto = BookMapper::toDto($book);
+
         return $this->render('book/show.html.twig', [
             'book' => $bookDto,
         ]);
@@ -151,12 +165,28 @@ final class BookController extends AbstractController
 
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/{id}', name: 'app_book_delete', methods: ['POST'])]
-    public function delete(Book $book, EntityManagerInterface $em): Response
-    {
+    public function delete(
+        Book $book,
+        EntityManagerInterface $em,
+        BorrowRepository $borrowRepository
+    ): Response {
+        // Check if book is currently borrowed
+        $activeBorrows = $borrowRepository->findBy([
+            'book' => $book,
+            'returnedAt' => null,
+        ]);
+
+        if (count($activeBorrows) > 0) {
+            $this->addFlash('error', '❌ Cannot delete — this book is currently borrowed by a user.');
+            return $this->redirectToRoute('admin_book_index');
+        }
+
+        // Proceed with soft delete
         $book->setIsDeleted(true);
         $em->flush();
 
-        $this->addFlash('success', 'Book deleted successfully (soft delete).');
+        $this->addFlash('success', '✅ Book deleted successfully.');
         return $this->redirectToRoute('app_book_index');
     }
+
 }

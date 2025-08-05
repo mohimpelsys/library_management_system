@@ -41,6 +41,7 @@ security:
                 invalidate_session: true
 
     access_control:
+        - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
          # ❌ Restrict access to book management and viewing to logged-in users

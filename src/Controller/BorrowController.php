@@ -57,7 +57,7 @@ class BorrowController extends AbstractController
         }
 
         return $this->render('borrow/new.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'borrowDto' => $borrowDto,
         ]);
     }
