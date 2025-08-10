@@ -3,31 +3,49 @@
 {% block title %}Register{% endblock %}
 
 {% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .register-card {
+            max-width: 500px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        .form-title {
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
-    <div class="form-container">
-        <h1>Create an Account</h1>
+    <div class="register-card">
+        <div class="form-title">Create an Account</div>
 
         {{ form_start(registrationForm) }}
 
+        {# Display global form errors (e.g., CSRF or other global issues) #}
         {% for error in registrationForm.vars.errors %}
             <div class="alert alert-danger">{{ error.message }}</div>
         {% endfor %}
 
         <div class="mb-3">
-            {{ form_label(registrationForm.email) }}
+            {{ form_label(registrationForm.email, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
             {% for error in registrationForm.email.vars.errors %}
-                <div class="text-danger">{{ error.message }}</div>
+                <div class="text-danger small">{{ error.message }}</div>
             {% endfor %}
         </div>
 
         <div class="mb-3">
-            {{ form_label(registrationForm.plainPassword, 'Password') }}
+            {{ form_label(registrationForm.plainPassword, 'Password', {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
             {% for error in registrationForm.plainPassword.vars.errors %}
-                <div class="text-danger">{{ error.message }}</div>
+                <div class="text-danger small">{{ error.message }}</div>
             {% endfor %}
         </div>
 
@@ -35,16 +53,16 @@
             {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
             {{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'form-check-label'}}) }}
             {% for error in registrationForm.agreeTerms.vars.errors %}
-                <div class="text-danger">{{ error.message }}</div>
+                <div class="text-danger small">{{ error.message }}</div>
             {% endfor %}
         </div>
 
-        <div class="row">
+        <div class="row mt-4">
             <div class="col-6">
                 <button type="submit" class="btn btn-primary w-100">Register</button>
             </div>
             <div class="col-6">
-                <a href="{{ path('app_login') }}" class="btn btn-secondary w-100">Back to Login</a>
+                <a href="{{ path('app_login') }}" class="btn btn-outline-secondary w-100">Back to Login</a>
             </div>
         </div>
 

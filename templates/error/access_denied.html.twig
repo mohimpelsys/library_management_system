@@ -14,11 +14,14 @@
                 🔐 Go to Login
             </a>
 
-            <a href="{{ path('app_book_index') }}"
-               class="btn btn-secondary"
-               style="background-color: #8d6e63; border-color: #a1887f; padding: 10px 20px; border-radius: 5px; text-decoration: none; color: white;">
-                🏠 Go to Home
-            </a>
+            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                <a href="{{ path('app_book_index') }}"
+                   class="btn btn-secondary"
+                   style="background-color: #8d6e63; border-color: #a1887f; padding: 10px 20px; border-radius: 5px; text-decoration: none; color: white;">
+                    🏠 Go to Home
+                </a>
+            {% endif %}
+
         </div>
     </div>
 {% endblock %}

@@ -14,7 +14,8 @@ class BookApiMapper
             $book->getTitle(),
             $book->getAuthor(),
             $book->getIsbn(),
-            $book->getImage()
+            $book->getImage(),
+            $book->getDescription()
         );
     }
 

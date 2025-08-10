@@ -12,7 +12,6 @@ use App\Repository\BookRepository;
 use App\Repository\BorrowRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -123,10 +122,19 @@ final class BookController extends AbstractController
     {
 
         $bookDto = BookMapper::toDto($book);
-
-        return $this->render('book/show.html.twig', [
+        $response = $this->render('book/show.html.twig', [
             'book' => $bookDto,
         ]);
+
+        if ($book->isDeleted()) {
+            throw $this->createNotFoundException('Book not found.');
+        }
+
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, private, max-age=0');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
+
+        return $response;
     }
 
     #[IsGranted('ROLE_ADMIN')]
@@ -140,6 +148,11 @@ final class BookController extends AbstractController
     ): Response {
         // STEP 1: Convert Book entity to DTO
         $bookFormDto = $bookFormMapper->entityToDto($book);
+
+        if ($book->isDeleted()) {
+            $this->addFlash('warning', 'This book is already deleted.');
+            return $this->redirectToRoute('app_book_index');
+        }
 
         // STEP 2: Create and handle the form
         $form = $this->createForm(BookType::class, $bookFormDto, [

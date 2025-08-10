@@ -39,23 +39,22 @@ security:
                 path: app_logout
                 target: app_login
                 invalidate_session: true
+                delete_cookies:
+                    PHPSESSID: { path: /, domain: ~ }
+            remember_me:
+                secret: '%kernel.secret%'
+
+            access_denied_url: /access-denied
 
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-         # ❌ Restrict access to book management and viewing to logged-in users
+#        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/book, roles: ROLE_USER }
-
-        # ❌ Borrow-related routes need ROLE_USER
         - { path: ^/borrow, roles: ROLE_USER }
-
-        # ❌ Secure return routes
         - { path: ^/return, roles: ROLE_USER }
 
-        # ✅ Allow anonymous users to access login and register
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
 
-        # Optional: Allow static assets like CSS, images, etc.
         - { path: ^/assets, roles: PUBLIC_ACCESS }

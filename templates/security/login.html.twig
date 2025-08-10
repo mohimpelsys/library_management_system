@@ -46,7 +46,7 @@
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
             <div class="d-grid gap-2">
-                <button class="btn btn-primary" type="submit">🔓 Sign in</button>
+                <button class="btn btn-primary" type="submit" data-turbo="false">🔓 Sign in</button>
                 <a href="{{ path('app_register') }}" class="btn btn-secondary">📝 Register new account</a>
             </div>
         </form>

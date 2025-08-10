@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Terms and Conditions{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>📚 Library Membership Terms & Conditions</h1>
+        <p>Welcome to our library! By registering as a member, you agree to the following terms:</p>
+        <ul>
+            <li>You are responsible for books you borrow.</li>
+            <li>Books must be returned on or before due dates.</li>
+            <li>Fines apply for late returns (₹10/day).</li>
+            <li>Lost/damaged books must be reported and compensated.</li>
+            <li>Membership may be suspended for policy violations.</li>
+            <li>Terms may change at any time without prior notice.</li>
+        </ul>
+        <a href="{{ path('app_register') }}" class="btn btn-primary mt-4">
+            🔙 Return to Registration
+        </a>
+    </div>
+{% endblock %}

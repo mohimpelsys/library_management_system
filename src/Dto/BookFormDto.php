@@ -16,6 +16,7 @@ class BookFormDto
 
     #[Assert\NotBlank(message: "ISBN is required.")]
     #[Assert\Length(min: 3, minMessage:"ISBN must be at least 3 characters." )]
+    #[Assert\Length(max: 13, maxMessage:"ISBN must not exceed 13 characters." )]
     public string $isbn = '';
 
     #[Assert\File(

@@ -20,13 +20,15 @@ class RegistrationFormType extends AbstractType
             ->add('email', EmailType::class)
             ->add('plainPassword', PasswordType::class)
             ->add('agreeTerms', CheckboxType::class, [
-            'mapped' => false,
-            'constraints' => [
-                new IsTrue([
-                    'message' => 'You must agree to our terms.',
-                ]),
-            ],
-        ]);
+                'label' => 'I agree to the <a href="/user/terms" target="_blank">Terms and Conditions</a>.',
+                'label_html' => true,
+                'mapped' => false,
+                'constraints' => [
+                    new IsTrue([
+                        'message' => 'You must agree to the terms.',
+                    ]),
+                ],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

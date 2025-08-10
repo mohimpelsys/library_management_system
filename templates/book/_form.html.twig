@@ -10,21 +10,28 @@
     <div class="mb-3">
         {{ form_label(form.title, null, {'label_attr': {'class': 'form-label fw-bold text-dark'}}) }}
         {{ form_widget(form.title, { 'attr': {'class': 'form-control'} }) }}
-        {{ form_errors(form.title) }}
+        <div class="text-danger">
+            {{ form_errors(form.title) }}
+        </div>
     </div>
+
 
     <!-- Author -->
     <div class="mb-3">
         {{ form_label(form.author, null, {'label_attr': {'class': 'form-label fw-bold text-dark'}}) }}
         {{ form_widget(form.author, { 'attr': {'class': 'form-control'} }) }}
+        <div class="text-danger">
         {{ form_errors(form.author) }}
+        </div>
     </div>
 
     <!-- ISBN -->
     <div class="mb-3">
         {{ form_label(form.isbn, null, {'label_attr': {'class': 'form-label fw-bold text-dark'}}) }}
         {{ form_widget(form.isbn, { 'attr': {'class': 'form-control'} }) }}
+        <div class="text-danger">
         {{ form_errors(form.isbn) }}
+        </div>
     </div>
 
     <!-- Description -->
@@ -37,14 +44,18 @@
                 'placeholder': 'Write a short summary or description of the book...'
             }
         }) }}
+        <div class="text-danger">
         {{ form_errors(form.description) }}
+        </div>
     </div>
 
     <!-- Image Upload -->
     <div class="mb-4">
         {{ form_label(form.image, null, {'label_attr': {'class': 'form-label fw-bold text-dark'}}) }}
         {{ form_widget(form.image, { 'attr': {'class': 'form-control'} }) }}
+        <div class="text-danger">
         {{ form_errors(form.image) }}
+        </div>
     </div>
 
     <!-- Submit -->
